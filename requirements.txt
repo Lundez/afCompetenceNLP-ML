@@ -1,0 +1,9 @@
+cython
+numpy
+pandas
+tensorflow
+keras
+spacy
+sklearn
+plac
+fastText

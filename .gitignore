@@ -1,0 +1,13 @@
+dist/
+build/
+af_competence.egg-info
+.idea/
+*__pycache__/*
+models/*
+data/embeddings.zip
+data/quora/embeddings/
+data/quora/fast_*
+models/model_spacy_lg/
+competitions/__pycache__/
+competitions/tools/__pycache__/
+data/quora/*.csv
