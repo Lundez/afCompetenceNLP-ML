@@ -4,7 +4,8 @@ import argparse
 import numpy as np
 import pandas as pd
 
-from utils import timer, load_and_preprocess
+from competitions.tools.timer import timer
+from competitions.tools.DataReader import DataReader
 
 
 def create_submission(X_train, y_train, X_test, df_test, thres, module):
@@ -26,13 +27,11 @@ def create_submission(X_train, y_train, X_test, df_test, thres, module):
     ------
     df_summission
     """
-    # get model
     model = module.get_model()
-    # train model
-    print('fitting model')
+    print('Training model...')
     model = model.fit(X_train, y_train)
     # predict
-    print('predicting probas')
+    print('Predicting test...')
     y_pred = np.squeeze(model.predict_proba(X_test) > thres).astype('int')
     # create submission file
     return pd.DataFrame({'qid': df_test.qid, 'prediction': y_pred})
@@ -42,7 +41,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         prog="Quora Insincere Questions Classification",
         description="Create Submission")
-    parser.add_argument('--datapath', nargs='?', default=os.environ['DATA_PATH'],   # noqa
+    parser.add_argument('--datapath', nargs='?', default=os.environ['DATA_PATH'],  # noqa
                         help='input data path')
     parser.add_argument('--model', nargs='?', default='model_v30',
                         help='model version')
@@ -65,6 +64,7 @@ if __name__ == '__main__':
     module = __import__(model)
     # 2. load and preprocess data
     with timer("Load and Preprocess"):
+        dr = DataReader()  # TODO I'm here
         df_train, df_test, X_train, X_test = load_and_preprocess(datapath, module)  # noqa
     # 3. create submission file
     with timer('Trainning and Creating Submission'):
@@ -75,5 +75,5 @@ if __name__ == '__main__':
             best_thres, module)
         df_submission.to_csv(filepath, index=False)
         print('Save submission file to {}'.format(filepath))
-    # record time spent
-    print('Entire program is done and it took {:.2f}s'.format(time.time() - t0)) # noqa
+
+    print('Entire program is done and it took {:.2f}s'.format(time.time() - t0))  # noqa

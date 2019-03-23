@@ -9,8 +9,8 @@ tools/\
 data/\
 models/\
 
-Run setup.py\
 Run pip install -r requirements.txt\
+Run pip install -e .\
 Get fastText & install through pip\
 Run build_embed with defaults
 

@@ -1,28 +1,57 @@
 import spacy
 import unicodedata
 import regex as re
-import string
 
 
 class PreProcessor(object):
     def __init__(self, text):
         self.text = text
-        regular_punct = list(string.punctuation)
-        puncts_extra = [',', '.', '"', ':', ')', '(', '-', '!', '?', '|', ';', "'", '$',
-                        '&', '/', '[', ']', '>', '%', '=', '#', '*', '+', '\\', '•',
-                        '~', '@', '£', '·', '_', '{', '}', '©', '^', '®', '`', '<',
-                        '→', '°', '€', '™', '›', '♥', '←', '×', '§', '″', '′', 'Â',
-                        '█', '½', 'à', '…', '“', '★', '”', '–', '●', 'â', '►', '−', '¢',
-                        '²', '¬', '░', '¶', '↑', '±', '¿', '▾', '═', '¦', '║', '―', '¥',
-                        '▓', '—', '‹', '─', '▒', '：', '¼', '⊕', '▼', '▪', '†', '■', '’',
-                        '▀', '¨', '▄', '♫', '☆', 'é', '¯',
-                        '♦', '¤', '▲', 'è', '¸', '¾', 'Ã', '⋅', '‘', '∞',
-                        '∙', '）', '↓', '、', '│', '（', '»', '，', '♪', '╩', '╚', '³',
-                        '・', '╦', '╣', '╔', '╗', '▬', '❤', 'ï', 'Ø', '¹', '≤', '‡', '√']
-        self.puncts = list(set(regular_punct + puncts_extra))
+        self.puncts = [',', '.', '"', ':', ')', '(', '-', '!', '?', '|', ';', "'", '$',
+                       '&', '/', '[', ']', '>', '%', '=', '#', '*', '+', '\\', '•',
+                       '~', '@', '£', '·', '_', '{', '}', '©', '^', '®', '`', '<',
+                       '→', '°', '€', '™', '›', '♥', '←', '×', '§', '″', '′', 'Â',
+                       '█', '½', 'à', '…', '“', '★', '”', '–', '●', 'â', '►', '−', '¢',
+                       '²', '¬', '░', '¶', '↑', '±', '¿', '▾', '═', '¦', '║', '―', '¥',
+                       '▓', '—', '‹', '─', '▒', '：', '¼', '⊕', '▼', '▪', '†', '■', '’',
+                       '▀', '¨', '▄', '♫', '☆', 'é', '¯',
+                       '♦', '¤', '▲', 'è', '¸', '¾', 'Ã', '⋅', '‘', '∞',
+                       '∙', '）', '↓', '、', '│', '（', '»', '，', '♪', '╩', '╚', '³',
+                       '・', '╦', '╣', '╔', '╗', '▬', '❤', 'ï', 'Ø', '¹', '≤', '‡', '√']
+        # TODO this varies depending on what task!
+        self.mispell_dict = {'colour': 'color', 'centre': 'center', 'favourite': 'favorite', 'travelling': 'traveling',
+                             'counselling': 'counseling',
+                             'theatre': 'theater', 'cancelled': 'canceled', 'labour': 'labor',
+                             'organisation': 'organization',
+                             'wwii': 'world war 2',
+                             'citicise': 'criticize', 'youtu ': 'youtube ', 'Qoura': 'Quora', 'sallary': 'salary',
+                             'Whta': 'What',
+                             'narcisist': 'narcissist',
+                             'howdo': 'how do', 'whatare': 'what are', 'howcan': 'how can', 'howmuch': 'how much',
+                             'howmany': 'how many', 'whydo': 'why do',
+                             'doI': 'do I', 'theBest': 'the best', 'howdoes': 'how does',
+                             'mastrubation': 'masturbation',
+                             'mastrubate': 'masturbate',
+                             "mastrubating": 'masturbating', 'pennis': 'penis', 'Etherium': 'Ethereum',
+                             'narcissit': 'narcissist',
+                             'bigdata': 'big data',
+                             '2k17': '2017', '2k18': '2018', 'qouta': 'quota', 'exboyfriend': 'ex boyfriend',
+                             'airhostess': 'air hostess', "whst": 'what',
+                             'watsapp': 'whatsapp', 'demonitisation': 'demonetization',
+                             'demonitization': 'demonetization',
+                             'demonetisation': 'demonetization'}
+        self.mispellings_re = re.compile('(%s)' % '|'.join(self.mispell_dict.keys()))
 
     def get_text(self):
         return self.text
+
+    # TODO fix misspellings
+    def replace_typical_misspell(self):
+        def replace(match):
+            return self.mispell_dict[match.group(0)]
+
+        self.text = self.mispellings_re.sub(replace, self.text)
+
+        return self
 
     def spacy_tokenize_words(self):
         raise NotImplementedError
@@ -58,13 +87,19 @@ class PreProcessor(object):
 
         return self
 
-    def clean_punctuation(self):
-        """
-        add space before and after punctuation and symbols
-        """
+    def space_punctuation(self):
         for punct in self.puncts:
             if punct in self.text:
                 self.text = self.text.replace(punct, f' {punct} ')
+
+                # We could also remove all non p\{L}...
+
+        return self
+
+    def remove_punctuation(self):
+        import string
+        re_tok = re.compile(f'([{string.punctuation}])')
+        self.text = re_tok.sub(' ', self.text)
 
         return self
 
@@ -78,6 +113,18 @@ class PreProcessor(object):
         self.text = text
         return self
 
+    def clean_and_get_text(self):
+        self.clean_numbers() \
+            .space_punctuation() \
+            .decontracted() \
+            .normalize_unicode() \
+            .remove_newline() \
+            .replace_typical_misspell()
+
+        return self.text
+
+
+# TODO add this at the spacy tokenize. Might help? :)
 # nlp = spacy.load('en_core_web_sm')
 # doc = nlp(u'Apple is looking at buying U.K. startup for $1 billion')
 # for token in doc:

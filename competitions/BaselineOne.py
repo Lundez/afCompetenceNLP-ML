@@ -40,7 +40,7 @@ def load_train_test_quora_data():
     data["train"] = []
     data["test"] = []
 
-    with open('quora/train.csv', 'r') as f:
+    with open('data/quora/train.csv', 'r') as f:
         questions = [record for record in csv.reader(f, delimiter=',', quotechar='"')][1:]
         # random.shuffle(questions)
         split = int(0.8 * len(questions))

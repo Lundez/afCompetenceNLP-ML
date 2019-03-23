@@ -7,7 +7,6 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_X_y, check_is_fitted
 from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
-from sklearn.svm import LinearSVC
 from tqdm import tqdm
 
 tqdm.pandas()
@@ -100,7 +99,7 @@ def transform(df_text):
 
 
 def get_model():
-    return BaseClassifier()
+    return BaseRegression()
 
 
 def clean_text(text):

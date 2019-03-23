@@ -1,10 +1,10 @@
-import regex as re
 import operator
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_X_y, check_is_fitted
 from sklearn import metrics
 from sklearn.svm import LinearSVC
+from competitions.tools.preprocessing import PreProcessor
 from tqdm import tqdm
 
 tqdm.pandas()
@@ -83,21 +83,7 @@ def get_model():
 
 
 def clean_text(text):
-    """
-    Applies some pre-processing on the given text.
-
-    Steps :
-    - Removing punctuation
-    - Lowering text
-    """
-    # remove the characters [\], ['] and ["]
-    text = re.sub(r"\\", "", text)
-    text = re.sub(r"\'", "", text)  # Extra: Is regex needed? Other ways to accomplish this.
-    text = re.sub(r"\"", "", text)
-    # replace all non alphanumeric with space
-    text = re.sub(r"\W+", " ", text)
-    return text.strip().lower()
-
+    return PreProcessor(text).clean_and_get_text()
 
 # Accuracy on the Quora dataset: 95.49
 # F1 on the Quora dataset: 60.83
@@ -105,68 +91,6 @@ def clean_text(text):
 # TODO try to achieve above somehow
 # TODO rebuild system to be fully CLASS!
 
-'''
-def word_transformer(df_text, stop_words=None):
-    """
-    transform and extract word features from raw text dataframe
-    Parameters
-    ----------
-    df_text: dataframe, single column with text
-    stop_words: string {‘english’}, list, or None (default)
-    Return
-    ------
-    df_features
-    """
-
-    def _tokenizer(text):
-        return nlp.word_tokenize(text, remove_punct=False, remove_num=True)
-
-    vectorizer = TfidfVectorizer(
-        strip_accents='unicode',
-        ngram_range=(1, 3),
-        tokenizer=_tokenizer,
-        analyzer='word',
-        min_df=3, max_df=0.9, max_features=None,
-        use_idf=True, smooth_idf=True, sublinear_tf=True,
-        stop_words=stop_words)
-    return vectorizer.fit_transform(df_text)
-
-
-def char_transformer(df_text, stop_words=None):
-    """
-    transform and extract word features from raw text dataframe
-    Parameters
-    ----------
-    df_text: dataframe, single column with text
-    stop_words: string {‘english’}, list, or None (default)
-    Return
-    ------
-    df_features
-    """
-
-    def _tokenizer(text):
-        return nlp.char_tokenize(text, remove_punct=False, remove_num=True)
-
-    vectorizer = TfidfVectorizer(
-        strip_accents='unicode',
-        ngram_range=(1, 1),
-        tokenizer=_tokenizer,
-        analyzer='word',
-        min_df=3, max_df=0.9, max_features=None,
-        sublinear_tf=True,
-        stop_words=stop_words)
-    return vectorizer.fit_transform(df_text)
-
-
-def transform(df_text):
-    """
-    transform and extract features from raw text dataframe
-    Parameters
-    ----------
-    df_text: dataframe, single column with text
-    Return
-    ------
-    features: dataframe, or numpy, scipy
-    """
-    return sparse.hstack([word_transformer(df_text), char_transformer(df_text)]).tocsr()  # noqa
-'''
+# TODO
+# char_transformer (3 chars a time)
+# sparse.hstack([word_transformer(df_text), char_transformer(df_text)]).tocsr()
