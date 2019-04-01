@@ -38,7 +38,7 @@ def parse_args():
         description="Run Model Validation and Pick the Best Best Param")
     parser.add_argument('--datapath', nargs='?', default=os.environ['DATA_PATH'],
                         help='input data path')
-    parser.add_argument('--model', nargs='?', default='BaseClassifier',
+    parser.add_argument('--model', nargs='?', default='NeuralNetwork',
                         help='model version')
     return parser.parse_args()
 
@@ -55,8 +55,6 @@ if __name__ == '__main__':
 
     t0 = time.time()
     # 1. import module
-    # TODO importlib.import_module preferred.
-    #  But why not make use of DuckTyping?
     module = __import__(model)
 
     dr = DataReader(os.path.join(datapath, 'quora', 'train.csv'), module)

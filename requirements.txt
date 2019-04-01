@@ -7,3 +7,5 @@ spacy
 sklearn
 plac
 fastText
+torch
+torchtext

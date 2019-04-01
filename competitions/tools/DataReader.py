@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.model_selection import KFold, train_test_split
+from sklearn.model_selection import StratifiedKFold, train_test_split
 from competitions.tools.timer import timer
 
 
@@ -25,9 +25,9 @@ class DataReader(object):
         self.raw_train = self.train_data[['question_text']]
         print("Train data with shape: ", self.train_data.shape)
         train_test_cut = self.train_data.shape[0]
-        if self.raw_test:
+        if isinstance(self.raw_test, pd.DataFrame):
             df_all = pd.concat([self.raw_train, self.raw_test],
-                               axis=0).drop_index(drop=True)
+                               axis=0).reset_index(drop=True)
         else:
             df_all = self.raw_train
         self.df_all = df_all
@@ -74,7 +74,7 @@ class DataReader(object):
         :return: a generator that yields the folds.
         """
         print("Creating validation data by kfold (%s)" % k)
-        kfold = KFold(n_splits=k, shuffle=shuffle_data, random_state=random_state)
+        kfold = StratifiedKFold(n_splits=k, shuffle=shuffle_data, random_state=random_state)
         train_data = self.train_data
         X_train = self.X_train
         folded_data = kfold.split(X_train, train_data.target)
@@ -89,8 +89,8 @@ class DataReader(object):
             yield X_t, X_v, y_t, y_v
 
     def get_test(self):
-        if self.test_data:
-            return self.test_data
+        if isinstance(self.test_data, pd.DataFrame):
+            return self.train_data, self.X_train, self.test_data, self.X_test
         raise Exception("No test data provided!")
 
     def get_all_text(self):
@@ -98,9 +98,7 @@ class DataReader(object):
 
     # TODO add
     #       - use DuckTyping.
-    #       - transformer working.
-    #       - preprocessing
-    #       - statistics retrievers. Most common, uncommon etc. :)
+    #       - statistics retrievers. >>> Most common, uncommon etc. :)
 
 
 if __name__ == '__main__':

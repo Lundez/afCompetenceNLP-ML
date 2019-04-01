@@ -16,11 +16,8 @@ def create_submission(X_train, y_train, X_test, df_test, thres, module):
     Parameters
     ----------
     X_train, y_train, X_test: features and targets
-
     df_test: dataframe, test data
-
     thres: float, a decision threshold for classification
-
     module: a python module
 
     Return
@@ -64,8 +61,8 @@ if __name__ == '__main__':
     module = __import__(model)
     # 2. load and preprocess data
     with timer("Load and Preprocess"):
-        dr = DataReader()  # TODO I'm here
-        df_train, df_test, X_train, X_test = load_and_preprocess(datapath, module)  # noqa
+        dr = DataReader(os.path.join(datapath, 'quora', 'train.csv'), module, os.path.join(datapath, 'quora', 'test.csv'))
+        df_train, X_train, df_test, X_test = dr.get_test()
     # 3. create submission file
     with timer('Trainning and Creating Submission'):
         filepath = os.path.join(datapath, 'submit_' + model + '.csv')

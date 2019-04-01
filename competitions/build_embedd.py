@@ -134,7 +134,7 @@ if __name__ == '__main__':
     module = __import__(model)
     # 2. load data and get word index
     with timer("Extract Word Index From Train and Test Data"):
-        print("loading data ......")
+        print("Loading data...")
         df_train = pd.read_csv(os.path.join(datapath, 'quora', "train.csv"))
         df_test = pd.read_csv(os.path.join(datapath, 'quora', "test.csv"))
         print("train data with shape : ", df_train.shape)
@@ -144,16 +144,16 @@ if __name__ == '__main__':
             [df_train[['question_text']], df_test[['question_text']]],
             axis=0).reset_index(drop=True)
         # get word index
-        print('tokenizing text...')
+        print('Tokenizing text...')
         _, tokenizer = module.tokenize(df_all['question_text'])
         word_index = tokenizer.word_index
     # 3. create embeddings weights matrix
     with timer("Create Embedding Weights Matrix"):
         # load word embeddings
-        print('loading embeddings file')
+        print('Loading embeddings file')
         word_embed = load_word_embedding(embed_filepath)
         # create embeddings weights matrix
-        print('create embeddings weights...')
+        print('Create embeddings weights...')
         embed_weights = create_embedding_weights(
             word_index,
             word_embed,
@@ -163,6 +163,6 @@ if __name__ == '__main__':
             embed_filepath.rsplit('/', 1)[0],
             '{}.pkl'.format(embedding))
         pd.to_pickle(embed_weights, filepath_to_save)
-        print('save embeddings weights to {}'.format(filepath_to_save))
+        print('Save embeddings weights to {}'.format(filepath_to_save))
     # record time spent
     print('Entire program is done and it took {:.2f}s'.format(time.time() - t0))  # noqa
